@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Load Tester - Kiểm Tra Khả Năng Chịu Tải</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Hiệu ứng mưa */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .drop {
+            position: absolute;
+            top: -20px;
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.7));
+            animation: rain 1.5s linear infinite;
+        }
+
+        @keyframes rain {
+            0% {
+                transform: translateY(0) rotate(10deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(10deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container chính */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header với hiệu ứng neon */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            animation: neon-pulse 2s infinite alternate;
+        }
+
+        @keyframes neon-pulse {
+            from {
+                box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            }
+            to {
+                box-shadow: 0 0 15px #00ffff, 0 0 25px #00ffff, 0 0 35px #00ffff, 0 0 45px #00ffff;
+            }
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        /* Các phần nội dung */
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #ff00ff;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .card h2 {
+            color: #ff00ff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .btn-primary:hover {
+            background: #00cccc;
+            box-shadow: 0 0 15px #00ffff;
+        }
+
+        .btn-danger {
+            background: #ff00ff;
+            color: #000;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        .btn-danger:hover {
+            background: #cc00cc;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(30, 30, 60, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #00ffaa;
+            box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ffaa;
+            text-shadow: 0 0 10px #00ffaa;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Music player */
+        .music-player {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #ffaa00;
+            box-shadow: 0 0 10px #ffaa00, 0 0 20px rgba(255, 170, 0, 0.5);
+        }
+
+        .music-player h2 {
+            color: #ffaa00;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px #ffaa00;
+        }
+
+        .song-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .song-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(40, 40, 80, 0.5);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .song-item:hover {
+            background: rgba(60, 60, 100, 0.7);
+            transform: translateX(5px);
+        }
+
+        .song-item.active {
+            background: rgba(255, 170, 0, 0.3);
+            border-left: 3px solid #ffaa00;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #ffaa00;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hiệu ứng mưa -->
+    <div class="rain" id="rain"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>NEON LOAD TESTER</h1>
+            <p>Kiểm tra khả năng chịu tải của máy chủ với hiệu ứng neon tuyệt đẹp</p>
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h2>Kiểm Tra Tải</h2>
+                <p>Bắt đầu kiểm tra khả năng chịu tải của máy chủ bằng cách tạo các yêu cầu đồng thời.</p>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startTest">Bắt Đầu Kiểm Tra</button>
+                    <button class="btn btn-danger" id="stopTest">Dừng Kiểm Tra</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="requestCount">0</div>
+                        <div class="stat-label">Yêu Cầu/giây</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="serverStatus">Bình thường</div>
+                        <div class="stat-label">Trạng Thái Máy Chủ</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="responseTime">0ms</div>
+                        <div class="stat-label">Thời Gian Phản Hồi</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="loadLevel">Thấp</div>
+                        <div class="stat-label">Mức Độ Tải</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Thông Tin Kiểm Tra</h2>
+                <p>Trang web này mô phỏng kiểm tra tải bằng cách tạo các yêu cầu HTTP liên tục đến máy chủ.</p>
+                <p><strong>Lưu ý:</strong> Đây chỉ là mô phỏng và không thực sự tạo tải lên máy chủ thật.</p>
+                
+                <div style="margin-top: 20px;">
+                    <h3>Mức Độ Tải:</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><span style="color: #00ffaa;">Thấp</span>: Dưới 10 yêu cầu/giây</li>
+                        <li><span style="color: #ffaa00;">Trung bình</span>: 10-50 yêu cầu/giây</li>
+                        <li><span style="color: #ff5555;">Cao</span>: Trên 50 yêu cầu/giây</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="music-player">
+            <h2>Nhạc Sơn Tùng</h2>
+            <p>Thư giãn với các bài hát của Sơn Tùng M-TP trong khi kiểm tra</p>
+            
+            <div class="song-list">
+                <div class="song-item active" data-src="https://example.com/sontung1.mp3">
+                    <span>Chúng Ta Của Hiện Tại</span>
+                    <span>▶</span>
+                </div>
+                <div class="song-item" data-src="https://example.com/sontung2.mp3">
+                    <span>Chạy Ngay Đi</span>
+                    <span>▶</span>
+                </div>
+                <div class="song-item" data-src="https://example.com/sontung3.mp3">
+                    <span>Hãy Trao Cho Anh</span>
+                    <span>▶</span>
+                </div>
+                <div class="song-item" data-src="https://example.com/sontung4.mp3">
+                    <span>Muộn Rồi Mà Sao Còn</span>
+                    <span>▶</span>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress" id="songProgress"></div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Trang web kiểm tra tải với hiệu ứng neon | Chỉ sử dụng cho mục đích giáo dục</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tạo hiệu ứng mưa
+        function createRain() {
+            const rainContainer = document.getElementById('rain');
+            const dropCount = 100;
+            
+            for (let i = 0; i < dropCount; i++) {
+                const drop = document.createElement('div');
+                drop.classList.add('drop');
+                
+                // Vị trí ngẫu nhiên
+                const left = Math.random() * 100;
+                const animationDuration = 1 + Math.random() * 2;
+                const animationDelay = Math.random() * 2;
+                
+                drop.style.left = `${left}%`;
+                drop.style.animationDuration = `${animationDuration}s`;
+                drop.style.animationDelay = `${animationDelay}s`;
+                
+                rainContainer.appendChild(drop);
+            }
+        }
+
+        // Mô phỏng kiểm tra tải
+        let testInterval;
+        let requestCount = 0;
+        let isTesting = false;
+
+        function startLoadTest() {
+            if (isTesting) return;
+            
+            isTesting = true;
+            requestCount = 0;
+            
+            testInterval = setInterval(() => {
+                // Tăng số lượng yêu cầu
+                requestCount += Math.floor(Math.random() * 10) + 1;
+                document.getElementById('requestCount').textContent = requestCount;
+                
+                // Cập nhật thời gian phản hồi (giả lập)
+                const responseTime = Math.max(10, Math.floor(1000 / (requestCount / 10 + 1)));
+                document.getElementById('responseTime').textContent = `${responseTime}ms`;
+                
+                // Cập nhật trạng thái máy chủ
+                let serverStatus = "Bình thường";
+                let loadLevel = "Thấp";
+                
+                if (requestCount > 50) {
+                    serverStatus = "Quá tải";
+                    loadLevel = "Cao";
+                    document.getElementById('serverStatus').style.color = "#ff5555";
+                    document.getElementById('loadLevel').style.color = "#ff5555";
+                } else if (requestCount > 10) {
+                    serverStatus = "Ổn định";
+                    loadLevel = "Trung bình";
+                    document.getElementById('serverStatus').style.color = "#ffaa00";
+                    document.getElementById('loadLevel').style.color = "#ffaa00";
+                } else {
+                    document.getElementById('serverStatus').style.color = "#00ffaa";
+                    document.getElementById('loadLevel').style.color = "#00ffaa";
+                }
+                
+                document.getElementById('serverStatus').textContent = serverStatus;
+                document.getElementById('loadLevel').textContent = loadLevel;
+                
+            }, 1000);
+        }
+
+        function stopLoadTest() {
+            clearInterval(testInterval);
+            isTesting = false;
+            
+            // Reset các giá trị
+            document.getElementById('requestCount').textContent = "0";
+            document.getElementById('serverStatus').textContent = "Bình thường";
+            document.getElementById('serverStatus').style.color = "#00ffaa";
+            document.getElementById('responseTime').textContent = "0ms";
+            document.getElementById('loadLevel').textContent = "Thấp";
+            document.getElementById('loadLevel').style.color = "#00ffaa";
+        }
+
+        // Xử lý trình phát nhạc
+        const audioPlayer = new Audio();
+        let currentSong = null;
+        
+        function setupMusicPlayer() {
+            const songItems = document.querySelectorAll('.song-item');
+            
+            songItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Xóa active khỏi tất cả các bài hát
+                    songItems.forEach(song => song.classList.remove('active'));
+                    
+                    // Thêm active cho bài hát được chọn
+                    this.classList.add('active');
+                    
+                    // Lấy URL bài hát
+                    const songSrc = this.getAttribute('data-src');
+                    
+                    // Phát nhạc (trong thực tế, bạn cần thay thế bằng URL thật)
+                    // audioPlayer.src = songSrc;
+                    // audioPlayer.play();
+                    
+                    // Hiển thị thông báo (vì URL là giả)
+                    alert("Trong phiên bản thực tế, bài hát sẽ được phát. URL hiện tại là giả lập.");
+                });
+            });
+            
+            // Cập nhật thanh tiến trình (giả lập)
+            setInterval(() => {
+                if (audioPlayer.src && !audioPlayer.paused) {
+                    const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                    document.getElementById('songProgress').style.width = `${progress}%`;
+                }
+            }, 100);
+        }
+
+        // Khởi tạo khi trang được tải
+        document.addEventListener('DOMContentLoaded', function() {
+            createRain();
+            setupMusicPlayer();
+            
+            // Gán sự kiện cho các nút
+            document.getElementById('startTest').addEventListener('click', startLoadTest);
+            document.getElementById('stopTest').addEventListener('click', stopLoadTest);
+        });
+    </script>
+</body>
+</html>
